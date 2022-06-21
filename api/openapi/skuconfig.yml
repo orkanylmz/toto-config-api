@@ -1,0 +1,52 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Toto Server Config API
+servers:
+  - url: https://{hostname}/api
+    variables:
+      hostname:
+        default: localhost
+paths:
+  /config:
+    get:
+      operationId: getSKU
+      parameters:
+        - in: query
+          name: package
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: todo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SKUResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    SKUResponse:
+      type: object
+      required:
+        - main_sku
+      properties:
+        main_sku:
+          type: string
+    Error:
+      type: object
+      required:
+        - slug
+        - message
+      properties:
+        slug:
+          type: string
+        message:
+          type: string
