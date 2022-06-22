@@ -37,12 +37,14 @@ This will return sku2 for the condition 25 < 33 < 50
 # Request Lifecycle
 
 When the request comes;
- - Our handler first validates the request for query parameter `package`
- - The `country code` will be obtained from headers
- - Endpoint will create a random number between `0 and 100` and check the cache first, If it finds the configuration, it returns the response
+ - Our handler first validates the request for query parameter `package`.
+ - The `country code` will be obtained by reading user IP address from request headers.
+ - Endpoint will create a random number between `0 and 100` and check the cache first, If it finds the configuration, it returns the response.
  - If It can't find in the cache, It will check the DB, if the query satisfies, It will automatically sync the
-cache and returns the response. (So further requests can be served directly from cache.)
+cache and returns the response. (So further requests can be served directly from cache).
 
+# Geolocation Extraction
+Since the API deployed in Cloud Run, It handles the Country extraction from a custom API, since Cloud Run does not provide Country Code to us through headers.
 
 # Cloud Architecture
 - CloudSQL Postgres

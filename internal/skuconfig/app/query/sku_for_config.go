@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"math/rand"
@@ -67,7 +68,9 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (st
 
 		if err != nil {
 			fmt.Println("Lookup for cache error: ", err)
-			syncCacheIfNotFound = false
+			if !errors.Is(err, skuconfig.KeyNotFoundError) {
+				syncCacheIfNotFound = false
+			}
 		}
 
 		if cachedSKU != "" {
