@@ -20,27 +20,27 @@ create unique index sku_configs_id_uindex
     on sku_configs (id);
 
 --
--- INSERT INTO public.sku_configs (uuid, package, country_code, percentile_min, percentile_max, sku)
+-- INSERT INTO public.sku_configs (id, package, country_code, percentile_min, percentile_max, sku)
 -- VALUES ('5b4dcb45-32ad-480c-b6fe-91d4c4ee3198
 --
 -- ', 'com.softinit.iquitos.mainapp', 'US', 0, 25, 'rdm_premium_v3_020_trial_7d_monthly');
 --
--- INSERT INTO public.sku_configs (uuid, package, country_code, percentile_min, percentile_max, sku)
+-- INSERT INTO public.sku_configs (id, package, country_code, percentile_min, percentile_max, sku)
 -- VALUES ('5cbbba53-43d3-4add-a01b-cb8e29288274
 --
 -- ', 'com.softinit.iquitos.mainapp', 'US', 25, 50, 'rdm_premium_v3_030_trial_7d_monthly');
 --
--- INSERT INTO public.sku_configs (uuid, package, country_code, percentile_min, percentile_max, sku)
+-- INSERT INTO public.sku_configs (id, package, country_code, percentile_min, percentile_max, sku)
 -- VALUES ('bd88fd75-d336-46c2-87cb-a66b73ff06c3
 --
 -- ', 'com.softinit.iquitos.mainapp', 'US', 50, 75, 'rdm_premium_v3_100_trial_7d_yearly');
 --
--- INSERT INTO public.sku_configs (uuid, package, country_code, percentile_min, percentile_max, sku)
+-- INSERT INTO public.sku_configs (id, package, country_code, percentile_min, percentile_max, sku)
 -- VALUES ('72ee460f-7e01-4b2d-be57-0a826c6ecb29
 --
 -- ', 'com.softinit.iquitos.mainapp', 'US', 75, 100, 'rdm_premium_v3_150_trial_7d_yearly');
 --
--- INSERT INTO public.sku_configs (uuid, package, country_code, percentile_min, percentile_max, sku)
+-- INSERT INTO public.sku_configs (id, package, country_code, percentile_min, percentile_max, sku)
 -- VALUES ('38af6ce7-cde4-4a69-a82d-5cdfc7f29487
 --
 -- ', 'com.softinit.iquitos.mainapp', 'ZZ', 0, 100, 'rdm_premium_v3_050_trial_7d_yearly');
