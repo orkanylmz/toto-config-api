@@ -17,5 +17,6 @@ func (e NotFoundError) Error() string {
 }
 
 type Repository interface {
-	GetSKUConfig(ctx context.Context, packageName string, countryCode string, percentile int) (*SKUConfig, error)
+	GetAllSKUsForConfig(ctx context.Context, packageName string, countryCode string) ([]*SKUConfig, error)
+	GetSKUForConfig(ctx context.Context, packageName string, countryCode string, randomValue int) (string, error)
 }

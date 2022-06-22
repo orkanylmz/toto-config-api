@@ -20,8 +20,8 @@ type SKUForConfig struct {
 type SKUForConfigHandler decorator.QueryHandler[SKUForConfig, string]
 
 type SKUForConfigReadModel interface {
-	SKUForConfig(ctx context.Context, packageName string, countryCode string) (string, error)
 	GetAllSKUsForConfig(ctx context.Context, packageName string, countryCode string) ([]*skuconfig.SKUConfig, error)
+	GetSKUForConfig(ctx context.Context, packageName string, countryCode string, randomValue int) (string, error)
 }
 
 type SKUForConfigCacheModel interface {
@@ -59,43 +59,54 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (sk
 	key := fmt.Sprintf("%s_%s", strings.ToLower(query.CountryCode), strings.ToLower(query.PackageName))
 	randomValue := generateRandomNumber(0, 100)
 
-	cachedSKU, err := s.cacheModel.SKUForConfig(ctx, key, randomValue)
+	if s.cacheModel != nil {
+		cachedSKU, err := s.cacheModel.SKUForConfig(ctx, key, randomValue)
 
-	if err != nil {
-		if !errors.Is(err, skuconfig.KeyNotFoundError) {
+		if err != nil {
+			if !errors.Is(err, skuconfig.KeyNotFoundError) {
+				return "", err
+			}
+
+			// Key not found in cache, maybe in db?. Check for package name and country
+			// And set a cache from the configurations
+			allConfigurationsForPkgAndCountry, err := s.readModel.GetAllSKUsForConfig(ctx, query.PackageName, query.CountryCode)
+			if err != nil {
+				fmt.Println("Can't get all configuration to sync db to cache")
+			}
+
+			if len(allConfigurationsForPkgAndCountry) == 0 {
+				return "", errors.New("not found")
+			}
+
+			_ = s.cacheModel.SyncConfigurations(ctx, key, allConfigurationsForPkgAndCountry)
+
+			// Simply retrieve the cached value and return
+			return s.cacheModel.SKUForConfig(ctx, key, randomValue)
+		}
+
+		// If we find in cache, return
+		if cachedSKU != "" {
+			return cachedSKU, nil
+		}
+
+		sku, err = s.readModel.GetSKUForConfig(ctx, query.PackageName, query.CountryCode, randomValue)
+
+		if err != nil {
 			return "", err
 		}
 
-		// Key not found in cache, maybe in db?. Check for package name and country
-		// And set a cache from the configurations
-		allConfigurationsForPkgAndCountry, err := s.readModel.GetAllSKUsForConfig(ctx, query.PackageName, query.CountryCode)
+		if err = s.cacheModel.SetSKU(ctx, key, sku); err != nil {
+			return "", err
+		}
+		return sku, nil
+	} else {
+		sku, err = s.readModel.GetSKUForConfig(ctx, query.PackageName, query.CountryCode, randomValue)
+
 		if err != nil {
-			fmt.Println("Can't get all configuration to sync db to cache")
+			return "", err
 		}
 
-		if len(allConfigurationsForPkgAndCountry) == 0 {
-			return "", errors.New("not found")
-		}
-
-		_ = s.cacheModel.SyncConfigurations(ctx, key, allConfigurationsForPkgAndCountry)
-
-		// Simply retrieve the cached value and return
-		return s.cacheModel.SKUForConfig(ctx, key, randomValue)
+		return sku, nil
 	}
 
-	// If we find in cache, return
-	if cachedSKU != "" {
-		return cachedSKU, nil
-	}
-
-	sku, err = s.readModel.SKUForConfig(ctx, query.PackageName, query.CountryCode)
-
-	if err != nil {
-		return "", err
-	}
-
-	if err = s.cacheModel.SetSKU(ctx, key, sku); err != nil {
-		return "", err
-	}
-	return sku, nil
 }

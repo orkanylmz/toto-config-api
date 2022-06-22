@@ -20,7 +20,7 @@ func (p PostgresSKUConfigRepository) GetAllSKUsForConfig(ctx context.Context, pa
 
 	var foundSKUs []SKUConfigModel
 
-	err := p.db.Where("package = ? AND country_code = ?", packageName, countryCode).Find(&foundSKUs).Error
+	err := p.db.WithContext(ctx).Where("package = ? AND country_code = ?", packageName, countryCode).Find(&foundSKUs).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -43,10 +43,29 @@ func (p PostgresSKUConfigRepository) GetAllSKUsForConfig(ctx context.Context, pa
 	return result, nil
 }
 
-func (p PostgresSKUConfigRepository) SKUForConfig(ctx context.Context, packageName string, countryCode string) (string, error) {
-	//TODO implement me
-	fmt.Println("Executing DB Query....")
-	return "", nil
+func (p PostgresSKUConfigRepository) GetSKUForConfig(ctx context.Context, packageName string, countryCode string, randomValue int) (string, error) {
+	var foundConf *skuconfig.SKUConfig
+	query := "package = ? AND country_code = ? AND percentile_min < ? AND percentile_max >= ?"
+	err := p.db.WithContext(ctx).Where(query, packageName, countryCode, randomValue).Find(&foundConf).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// Can't find a record with country code, so lets find with a default country code (ZZ)
+			err := p.db.WithContext(ctx).Where(query, packageName, "ZZ", randomValue).Find(&foundConf).Error
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return "", nil
+				}
+				return "", err
+			}
+
+			return foundConf.SKU(), nil
+		}
+
+		return "", err
+	}
+
+	return foundConf.SKU(), nil
 }
 
 func NewPostgresSKUConfigRepository(db *gorm.DB) *PostgresSKUConfigRepository {
