@@ -1,12 +1,4 @@
 steps:
-- id: common-lint
-  name: golang
-  entrypoint: ./scripts/lint.sh
-  args: ['common', '-install']
-- id: skuconfig-lint
-  name: golang
-  entrypoint: ./scripts/lint.sh
-  args: ['skuconfig', '-install']
 - id: skuconfig-docker
   name: gcr.io/cloud-builders/docker
   entrypoint: ./scripts/build-docker.sh
