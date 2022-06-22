@@ -41,7 +41,7 @@ func (p PostgresSKUConfigRepository) GetAllSKUsForConfig(ctx context.Context, pa
 
 	var foundSKUs []SKUConfigModel
 
-	err := p.db.WithContext(ctx).Where("package = ? AND (country_code = ? OR country_code = ZZ)", packageName, countryCode).Find(&foundSKUs).Error
+	err := p.db.WithContext(ctx).Where("package = ? AND (country_code = ? OR country_code = 'ZZ')", packageName, countryCode).Find(&foundSKUs).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
