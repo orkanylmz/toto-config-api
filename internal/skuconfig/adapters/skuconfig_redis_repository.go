@@ -59,7 +59,7 @@ func (r RedisSKUConfigRepository) IsCacheKeyExists(ctx context.Context, key stri
 	return true, nil
 }
 
-func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, defaultKey string, randomValue int) (string, error) {
+func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, randomValue int) (string, error) {
 
 	res, err := r.redisClient.ZRangeByScore(ctx, key, &redis.ZRangeBy{
 		Min:   strconv.Itoa(randomValue),
@@ -72,22 +72,7 @@ func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, 
 	}
 
 	if len(res) == 0 {
-		// Check For Default Conf.
-		res, err := r.redisClient.ZRangeByScore(ctx, defaultKey, &redis.ZRangeBy{
-			Min:   strconv.Itoa(randomValue),
-			Max:   "+inf",
-			Count: 1,
-		}).Result()
-
-		if err != nil {
-			return "", errors.Wrap(err, "redisRepo.SKUForConfig.redisClient.Get")
-		}
-
-		if len(res) == 0 {
-			return "", nil
-		}
-
-		return res[0], nil
+		return "", nil
 	}
 
 	return res[0], nil

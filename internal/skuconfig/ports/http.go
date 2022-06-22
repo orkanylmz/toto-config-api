@@ -37,8 +37,6 @@ func (h HttpServer) GetSKU(w http.ResponseWriter, r *http.Request, params GetSKU
 		countryCode = headerCountryCode
 	}
 
-	fmt.Println("Country Code: ", countryCode)
-
 	useCache := r.Context().Value(middleware.UseCacheKey)
 
 	sku, err := h.app.Queries.SKUForConfig.Handle(r.Context(), query.SKUForConfig{

@@ -25,7 +25,7 @@ type SKUForConfigReadModel interface {
 }
 
 type SKUForConfigCacheModel interface {
-	SKUForConfig(ctx context.Context, key string, defaultKey string, randomValue int) (string, error)
+	SKUForConfig(ctx context.Context, key string, randomValue int) (string, error)
 	SetSKU(ctx context.Context, key string, sku string) error
 	SyncConfigurations(ctx context.Context, key string, configurations []*skuconfig.SKUConfig) error
 	SyncConfiguration(ctx context.Context, key string, configuration *skuconfig.SKUConfig) error
@@ -56,7 +56,7 @@ func generateRandomNumber(min int, max int) int {
 	return min + r.Intn(max-min)
 }
 
-func (s skuForConfigHandler) getCacheKey(cc string, pkg string, ) string {
+func (s skuForConfigHandler) getCacheKey(cc string, pkg string) string {
 	return fmt.Sprintf("%s_%s", strings.ToLower(cc), strings.ToLower(pkg))
 }
 
@@ -64,20 +64,24 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (st
 
 	cacheKey := s.getCacheKey(query.CountryCode, query.PackageName)
 	defaultKey := s.getCacheKey("ZZ", query.PackageName)
+
 	randomValue := generateRandomNumber(0, 100)
 
 	// Is cache available to use or not
 	if s.cacheModel != nil && query.UseCache {
 
-		// flag for syncing cache
-		syncCacheIfNotFound := true
+		// If country code is explicitly passed
+		if query.CountryCode == "ZZ" {
+			cacheKey = s.getCacheKey("ZZ", query.PackageName)
+		}
 
-		cachedSKU, err := s.cacheModel.SKUForConfig(ctx, cacheKey, defaultKey, randomValue)
+		// Try to get from cache with cacheKey
+		cachedSKU, err := s.cacheModel.SKUForConfig(ctx, cacheKey, randomValue)
 
 		if err != nil {
 			// If error happens here, e.g. can't reading cache etc. Don't try to sync cache
 			fmt.Println("Lookup for cache error: ", err)
-			syncCacheIfNotFound = false
+
 		}
 
 		if cachedSKU != "" {
@@ -85,50 +89,69 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (st
 			return cachedSKU, nil
 		}
 
-		if syncCacheIfNotFound {
-			fmt.Println("Syncing cache from DB")
-
-			// all configurations return configurations including the default one (cc = ZZ)
+		// If not found in cache and not explicitly set the country code
+		if query.CountryCode != "ZZ" {
+			// Could not find with cacheKey
+			// Try to fetch from db
 			allConfigurationsForPkgAndCountry, err := s.readModel.GetAllSKUsForConfig(ctx, query.PackageName, query.CountryCode)
 			if err != nil {
 				return "", nil
 			}
 
-			defaultConfigurationsForPkg, err := s.readModel.GetAllSKUsForConfig(ctx, query.PackageName, "ZZ")
-
-			if len(allConfigurationsForPkgAndCountry) == 0 && len(defaultConfigurationsForPkg) == 0 {
-				return "", nil
+			// If Configurations for for country
+			if len(allConfigurationsForPkgAndCountry) > 0 {
+				err = s.cacheModel.SyncConfigurations(ctx, cacheKey, allConfigurationsForPkgAndCountry)
+				if err == nil {
+					return s.cacheModel.SKUForConfig(ctx, cacheKey, randomValue)
+				}
+				// Sync Err
+				return searchInConfigSlice(allConfigurationsForPkgAndCountry, randomValue), nil
 			}
 
-			// Sync All Configurations to Cache
-			err = s.cacheModel.SyncConfigurations(ctx, cacheKey, allConfigurationsForPkgAndCountry)
-			// Sync Default Configurations to Cache
-			err = s.cacheModel.SyncConfigurations(ctx, defaultKey, defaultConfigurationsForPkg)
-
-			if err == nil {
-				// If not fail to sync
-				// Simply retrieve the cached value and return
-				if len(allConfigurationsForPkgAndCountry) > 0 {
-					return s.cacheModel.SKUForConfig(ctx, cacheKey, defaultKey, randomValue)
-				}
-
-				if len(defaultConfigurationsForPkg) > 0 {
-					return s.cacheModel.SKUForConfig(ctx, defaultKey, defaultKey, randomValue)
-				}
+			// Check For Default Configuration
+			if len(allConfigurationsForPkgAndCountry) == 0 {
+				return s.syncAndServeDefaultConfigurationsFromCache(ctx, query.PackageName, defaultKey, randomValue)
 			}
 
-			// If we fail to sync the cache, flow will continue by reading DB
+		} else {
+			return s.syncAndServeDefaultConfigurationsFromCache(ctx, query.PackageName, defaultKey, randomValue)
 		}
-
-		fmt.Println("Returning directly from DB")
-		// Find and return from not syncing
-		return s.findSKUFromDB(ctx, query.PackageName, query.CountryCode, randomValue)
 
 	} else {
 		fmt.Println("Returning directly from DB")
 		return s.findSKUFromDB(ctx, query.PackageName, query.CountryCode, randomValue)
 	}
 
+	return "", nil
+}
+
+func (s skuForConfigHandler) syncAndServeDefaultConfigurationsFromCache(ctx context.Context, packageName string, key string, randomValue int) (string, error) {
+	defaultConfigurationsForPkg, err := s.readModel.GetAllSKUsForConfig(ctx, packageName, "ZZ")
+	if err != nil {
+		return "", nil
+	}
+
+	if len(defaultConfigurationsForPkg) == 0 {
+		return "", nil
+	}
+
+	err = s.cacheModel.SyncConfigurations(ctx, key, defaultConfigurationsForPkg)
+	if err == nil {
+		return s.cacheModel.SKUForConfig(ctx, key, randomValue)
+	}
+
+	// Error for syncing cache, serve it directly from defaultConfigurationsForPkg
+	return searchInConfigSlice(defaultConfigurationsForPkg, randomValue), nil
+}
+
+func searchInConfigSlice(configSlice []*skuconfig.SKUConfig, val int) string {
+	for _, c := range configSlice {
+		if int(c.PercentileMin()) < val && val <= int(c.PercentileMax()) {
+			return c.SKU()
+		}
+	}
+
+	return ""
 }
 
 func (s skuForConfigHandler) findSKUFromDB(ctx context.Context, pkg string, cc string, val int) (string, error) {
