@@ -34,12 +34,8 @@ module cloud_run_config_api_http {
     },
     {
       name = "REDIS_HOST"
-      value = google_redis_instance.redis.host
+      value = "${google_redis_instance.redis.host}:${google_redis_instance.redis.port}"
     },
-    {
-      name = "REDIS_PORT"
-      value = google_redis_instance.redis.port
-    }
   ]
 
 }

@@ -61,15 +61,19 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (sk
 	randomValue := generateRandomNumber(0, 100)
 
 	if s.cacheModel != nil && query.UseCache {
+		fmt.Println("USING CACHE")
 		cachedSKU, err := s.cacheModel.SKUForConfig(ctx, key, randomValue)
-
+		fmt.Println("CACHED SKU: ", cachedSKU)
 		if err != nil {
+			fmt.Println("SKUForConfig Err: ", err)
 			if !errors.Is(err, skuconfig.KeyNotFoundError) {
+				fmt.Println("SKUForConfig Err: ", "NOT FOUND")
 				return "", err
 			}
 
 			// Key not found in cache, maybe in db?. Check for package name and country
 			// And set a cache from the configurations
+			fmt.Println("GetAllSKUsForConfig: ", "GETTING")
 			allConfigurationsForPkgAndCountry, err := s.readModel.GetAllSKUsForConfig(ctx, query.PackageName, query.CountryCode)
 			if err != nil {
 				fmt.Println("Can't get all configuration to sync db to cache")
@@ -79,6 +83,7 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (sk
 				return "", errors.New("not found")
 			}
 
+			fmt.Println("SyncConfigurations")
 			_ = s.cacheModel.SyncConfigurations(ctx, key, allConfigurationsForPkgAndCountry)
 
 			// Simply retrieve the cached value and return

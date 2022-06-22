@@ -24,6 +24,7 @@ resource "google_cloud_run_service" "service" {
       containers {
         image = data.google_container_registry_image.image.image_url
 
+
         dynamic "env" {
           for_each = concat(local.default_envs, var.envs)
           content {
@@ -37,7 +38,7 @@ resource "google_cloud_run_service" "service" {
     metadata {
       annotations = {
         "autoscaling.knative.dev/maxScale" = "10",
-
+        "run.googleapis.com/vpc-access-connector" = "my-vpc-connector"
       }
     }
   }
