@@ -23,12 +23,18 @@ func (h HttpServer) GetSKU(w http.ResponseWriter, r *http.Request, params GetSKU
 
 	countryCode := "ZZ"
 
-	if r.RemoteAddr != "" {
-		cc := GetCountryCodeFromIP(r.RemoteAddr)
+	headerCountryCode := r.Header.Get("X-Custom-CC")
 
-		if cc != "" {
-			countryCode = cc
+	if headerCountryCode == "" {
+		if r.RemoteAddr != "" {
+			cc := GetCountryCodeFromIP(r.RemoteAddr)
+
+			if cc != "" {
+				countryCode = cc
+			}
 		}
+	} else {
+		countryCode = headerCountryCode
 	}
 
 	fmt.Println("Country Code: ", countryCode)

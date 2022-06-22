@@ -57,6 +57,7 @@ func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, 
 	if len(res) == 0 {
 		return "", nil
 	}
+	r.redisClient.Close()
 
 	return res[0], nil
 }
