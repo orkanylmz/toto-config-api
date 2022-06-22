@@ -22,7 +22,6 @@ type SKUForConfigHandler decorator.QueryHandler[SKUForConfig, string]
 type SKUForConfigReadModel interface {
 	GetAllSKUsForConfig(ctx context.Context, packageName string, countryCode string) ([]*skuconfig.SKUConfig, error)
 	GetSKUForConfig(ctx context.Context, packageName string, countryCode string, randomValue int) (string, error)
-	GetDefaultSKUConfigForPackage(ctx context.Context, packageName string) ([]*skuconfig.SKUConfig, error)
 }
 
 type SKUForConfigCacheModel interface {
@@ -100,7 +99,7 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (st
 			if len(allConfigurationsForPkgAndCountry) == 0 && len(defaultConfigurationsForPkg) == 0 {
 				return "", nil
 			}
-			
+
 			// Sync All Configurations to Cache
 			err = s.cacheModel.SyncConfigurations(ctx, cacheKey, allConfigurationsForPkgAndCountry)
 			// Sync Default Configurations to Cache
