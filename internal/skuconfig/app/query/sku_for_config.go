@@ -66,7 +66,8 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (st
 		fmt.Println("CACHED SKU: ", cachedSKU)
 		if err != nil {
 			fmt.Println("SKUForConfig Err: ", err)
-			if !errors.Is(err, skuconfig.KeyNotFoundError) {
+
+			if errors.Is(err, skuconfig.KeyNotFoundError) {
 				fmt.Println("SKUForConfig Err: ", "NOT FOUND")
 				return "", err
 			}

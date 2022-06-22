@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-var KeyNotFoundError = errors.New("divide by zero")
+var KeyNotFoundError = errors.New("key not found in cache")
 
 type CacheRepository interface {
 	GetSKUConfig(ctx context.Context, key string) (string, error)
