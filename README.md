@@ -15,7 +15,7 @@ Also, `authentication` is not implemented for simplicity.
 I have run a load test using https://github.com/vearutop/plt
 
 Country Code extraction is disabled with a custom header `X-Custom-CC` for test purposes, because the 3rd party geo API is limiting.
-(We can replace it with ours after.)\
+(We can replace it with ours after.)
 
 Command To Run Tests
 ```go
