@@ -24,7 +24,11 @@ func (h HttpServer) GetSKU(w http.ResponseWriter, r *http.Request, params GetSKU
 	countryCode := "ZZ"
 
 	if r.RemoteAddr != "" {
-		countryCode = GetCountryCodeFromIP(r.RemoteAddr)
+		cc := GetCountryCodeFromIP(r.RemoteAddr)
+
+		if cc != "" {
+			countryCode = cc
+		}
 	}
 
 	fmt.Println("Country Code: ", countryCode)

@@ -1,6 +1,6 @@
 # Toto Config API
 
-Toto Config API helps the applications to get a randomly distributed subscription skus based
+Toto Config API helps mobile apps to get a randomly distributed subscription skus based
 on some parameters.
 
 # Design
@@ -64,7 +64,7 @@ docker-compose up
 ```
 
 ### Google Cloud Deployment (Terraform)
-You can deploy the API and all required parts with just a one command to Google Cloud.
+You can deploy the whole architecture with just a one command to Google Cloud.
 
 #### Required
 * Terraform

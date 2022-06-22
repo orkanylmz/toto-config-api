@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"toto-config-api/internal/common/metrics"
 	"toto-config-api/internal/skuconfig/adapters"
@@ -16,7 +17,11 @@ func NewApplication(ctx context.Context) app.Application {
 	logger := logrus.NewEntry(logrus.StandardLogger())
 	metricsClient := metrics.NoOp{}
 
-	redisClient := adapters.NewRedisClient()
+	redisClient, err := adapters.NewRedisClient(ctx)
+
+	if err != nil {
+		fmt.Println("Can not connect to Redis")
+	}
 
 	skuconfigRedisRepository := adapters.NewRedisSKUConfigRepository(redisClient)
 

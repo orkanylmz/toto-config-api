@@ -31,6 +31,14 @@ module cloud_run_config_api_http {
     {
       name = "DB_DRIVER"
       value = "cloudsqlpostgres"
+    },
+    {
+      name = "REDIS_HOST"
+      value = google_redis_instance.redis.host
+    },
+    {
+      name = "REDIS_PORT"
+      value = google_redis_instance.redis.port
     }
   ]
 
