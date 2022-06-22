@@ -28,11 +28,11 @@ Command To Run Tests
 plt --live-ui --duration=120s --rate-limit=50 curl -X GET "https://skuconfig-http-cfby56oe6q-ew.a.run.app/api/config?package=com.x" -H "X-Custom-CC: TR"
 ```
 
-![LatencyGraph](https://www.linkpicture.com/q/Screen-Shot-2022-06-22-at-22.51.37.png)
+![LatencyGraph](https://www.linkpicture.com/q/Screen-Shot-2022-06-22-at-22.53.36.png)
 
 Latency Distributions
 
-![LatencyDistribution](https://www.linkpicture.com/q/Screen-Shot-2022-06-22-at-22.51.49.png)
+![LatencyDistribution](https://www.linkpicture.com/q/Screen-Shot-2022-06-22-at-22.53.49.png)
 
 So, the test runs 120s with a 50 request per second, total request count was 6001 with 0 errors.
 
