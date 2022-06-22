@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-chi/render"
 	"net/http"
+	"strings"
 	"toto-config-api/internal/common/middleware"
 	"toto-config-api/internal/common/server/httperr"
 	"toto-config-api/internal/skuconfig/app"
@@ -30,11 +31,11 @@ func (h HttpServer) GetSKU(w http.ResponseWriter, r *http.Request, params GetSKU
 			cc := GetCountryCodeFromIP(r.RemoteAddr)
 
 			if cc != "" {
-				countryCode = cc
+				countryCode = strings.ToUpper(cc)
 			}
 		}
 	} else {
-		countryCode = headerCountryCode
+		countryCode = strings.ToUpper(headerCountryCode)
 	}
 
 	useCache := r.Context().Value(middleware.UseCacheKey)

@@ -57,7 +57,7 @@ func generateRandomNumber(min int, max int) int {
 }
 
 func (s skuForConfigHandler) getCacheKey(cc string, pkg string) string {
-	return fmt.Sprintf("%s_%s", strings.ToLower(cc), strings.ToLower(pkg))
+	return fmt.Sprintf("%s_%s", strings.ToUpper(cc), strings.ToLower(pkg))
 }
 
 func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (string, error) {
