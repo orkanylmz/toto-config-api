@@ -42,6 +42,10 @@ Following Countries:
 
 If the country can't be matched the default configuration (country code = ZZ) will be returned.
 
+```go
+curl --location --request GET 'https://skuconfig-http-cfby56oe6q-ew.a.run.app/api/config?package=com.x'
+```
+
 ## Benchmark Results
 I have run a load test using https://github.com/vearutop/plt
 
