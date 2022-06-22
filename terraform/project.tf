@@ -52,3 +52,8 @@ resource "google_project_service" "postgres" {
   service = "sql-component.googleapis.com"
   depends_on = [google_project.project]
 }
+
+resource "google_project_service" "cloudsqladmin" {
+  service = "sqladmin.googleapis.com"
+  depends_on = [google_project.project]
+}

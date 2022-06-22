@@ -54,6 +54,8 @@ cache and returns the response. (So further requests can be served directly from
 
 Our CloudSQL will not be publicly exposed, our Cloud Run instance connects to it using `cloudsqlproxy`
 
+When we commit and push our code to Cloud Source Repository, Cloud Build triggers and start building our code using `cloudbuild.yaml`, after success build, it will deploy it to Cloud Run.
+
 ![Architecture](https://i.postimg.cc/JnF1YLCT/toto-arch.png)
 
 ### Running Locally

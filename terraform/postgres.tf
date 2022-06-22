@@ -17,6 +17,7 @@ resource "google_service_account" "postgres" {
 
 resource "google_project_iam_member" "service_account_postgres_admin" {
   role   = "roles/editor"
+
   member = "serviceAccount:${google_service_account.postgres.email}"
   project = var.project
 }

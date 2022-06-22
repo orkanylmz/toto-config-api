@@ -27,3 +27,12 @@ resource "google_service_account_iam_member" "default-compute-account" {
 
   depends_on = [google_project_service.cloud_build]
 }
+
+resource "google_project_iam_member" "cloudsql_admin" {
+  role   = "roles/cloudsql.admin"
+  member = local.cloud_build_member
+  project = var.project
+
+  depends_on = [google_project_service.cloud_build]
+}
+
