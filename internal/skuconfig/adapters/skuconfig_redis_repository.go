@@ -73,7 +73,7 @@ func NewRedisSKUConfigRepository(redisClient *redis.Client) *RedisSKUConfigRepos
 func NewRedisClient(ctx context.Context) (*redis.Client, error) {
 	poolSize, err := strconv.Atoi(os.Getenv("REDIS_POOL_SIZE"))
 	if err != nil {
-		poolSize = 100
+		poolSize = 100 // default pool
 	}
 
 	opts := redis.Options{
