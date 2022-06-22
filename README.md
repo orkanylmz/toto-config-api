@@ -18,6 +18,12 @@ Endpoint Url: https://skuconfig-http-cfby56oe6q-ew.a.run.app/api/config
 
 The current architecture is deployed using the `smallest machine configurations` available in GCP for Redis, PostgreSQL and Cloud Run
 
+Cloud Run is configured to run `1` instances if not needed and scale to max `10`. (can be increased to max 1000)
+
+Each running container in Cloud Run has `512 MiB` Memory and `1 vCPU` and max `80` concurrent requests per container.
+
+With increasing these numbers we can easily handle more req/s according to our needs.
+
 Also, `authentication` is not implemented for simplicity.
 
 Current Configurations
