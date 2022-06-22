@@ -26,7 +26,7 @@ func NewApplication(ctx context.Context) app.Application {
 		panic(err)
 	}
 
-	_ = conn.AutoMigrate(&adapters.SKUConfigModel{})
+	_ = conn.AutoMigrate(adapters.SKUConfigModel{})
 
 	// Here we are creating a repository for read the data for our Queries and Commands
 	// Each Query or Command can use a different DB technology as long as they implement

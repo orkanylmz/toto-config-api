@@ -33,7 +33,7 @@ func (p PostgresSKUConfigRepository) GetAllSKUsForConfig(ctx context.Context, pa
 	result := make([]*skuconfig.SKUConfig, 0)
 
 	for _, s := range foundSKUs {
-		newSkuConfig, err := skuconfig.UnmarshalSKUConfigFromDatabase(s.UUID, s.Package, s.CountryCode, s.PercentileMin, s.PercentileMax, s.SKU)
+		newSkuConfig, err := skuconfig.UnmarshalSKUConfigFromDatabase(s.ID, s.Package, s.CountryCode, s.PercentileMin, s.PercentileMax, s.SKU)
 		if err != nil {
 			fmt.Println("error while converting db object to domain entity")
 		}
@@ -44,14 +44,14 @@ func (p PostgresSKUConfigRepository) GetAllSKUsForConfig(ctx context.Context, pa
 }
 
 func (p PostgresSKUConfigRepository) GetSKUForConfig(ctx context.Context, packageName string, countryCode string, randomValue int) (string, error) {
-	var foundConf *skuconfig.SKUConfig
-	query := "package = ? AND country_code = ? AND percentile_min < ? AND percentile_max >= ?"
-	err := p.db.WithContext(ctx).Where(query, packageName, countryCode, randomValue).Find(&foundConf).Error
+	var foundConf *SKUConfigModel
+	query := "package = ? AND country_code = ? AND (percentile_min < ? AND percentile_max >= ?)"
+	err := p.db.Debug().WithContext(ctx).Where(query, packageName, countryCode, randomValue, randomValue).Last(&foundConf).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Can't find a record with country code, so lets find with a default country code (ZZ)
-			err := p.db.WithContext(ctx).Where(query, packageName, "ZZ", randomValue).Find(&foundConf).Error
+			err := p.db.Debug().WithContext(ctx).Where(query, packageName, "ZZ", randomValue, randomValue).Last(&foundConf).Error
 			if err != nil {
 				if errors.Is(err, gorm.ErrRecordNotFound) {
 					return "", nil
@@ -59,13 +59,13 @@ func (p PostgresSKUConfigRepository) GetSKUForConfig(ctx context.Context, packag
 				return "", err
 			}
 
-			return foundConf.SKU(), nil
+			return foundConf.SKU, nil
 		}
 
 		return "", err
 	}
 
-	return foundConf.SKU(), nil
+	return foundConf.SKU, nil
 }
 
 func NewPostgresSKUConfigRepository(db *gorm.DB) *PostgresSKUConfigRepository {

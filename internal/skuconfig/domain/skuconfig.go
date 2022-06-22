@@ -8,7 +8,7 @@ import "errors"
 // For them
 
 type SKUConfig struct {
-	uuid          string
+	id            string
 	packageName   string
 	countryCode   string
 	percentileMin uint
@@ -18,8 +18,8 @@ type SKUConfig struct {
 
 // Getters for SKUConfig object
 
-func (s SKUConfig) UUID() string {
-	return s.uuid
+func (s SKUConfig) ID() string {
+	return s.id
 }
 
 func (s SKUConfig) PackageName() string {
@@ -43,9 +43,9 @@ func (s SKUConfig) SKU() string {
 }
 
 // NewSKUConfig returns a new sku config object by applying validation for it's members
-func NewSKUConfig(uuid string, packageName string, countryCode string, percentileMin uint, percentileMax uint, sku string) (*SKUConfig, error) {
-	if uuid == "" {
-		return nil, errors.New("empty skuconfig uuid")
+func NewSKUConfig(id string, packageName string, countryCode string, percentileMin uint, percentileMax uint, sku string) (*SKUConfig, error) {
+	if id == "" {
+		return nil, errors.New("empty skuconfig id")
 	}
 
 	if packageName == "" {
@@ -69,7 +69,7 @@ func NewSKUConfig(uuid string, packageName string, countryCode string, percentil
 	}
 
 	return &SKUConfig{
-		uuid:          uuid,
+		id:            id,
 		packageName:   packageName,
 		countryCode:   countryCode,
 		percentileMin: percentileMin,
@@ -82,14 +82,14 @@ func NewSKUConfig(uuid string, packageName string, countryCode string, percentil
 // This is intended to use only for unmarshalling and should not be used
 // as a constructor to avoid inconsistent state
 func UnmarshalSKUConfigFromDatabase(
-	uuid string,
+	id string,
 	packageName string,
 	countryCode string,
 	percentileMin uint,
 	percentileMax uint,
 	sku string,
 ) (*SKUConfig, error) {
-	skuCnf, err := NewSKUConfig(uuid, packageName, countryCode, percentileMin, percentileMax, sku)
+	skuCnf, err := NewSKUConfig(id, packageName, countryCode, percentileMin, percentileMax, sku)
 	if err != nil {
 		return nil, err
 	}

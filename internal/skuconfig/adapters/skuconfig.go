@@ -5,14 +5,14 @@ import (
 )
 
 type SKUConfigModel struct {
-	UUID          string `gorm:"primaryKey"`
+	ID            string `gorm:"primaryKey"`
 	Package       string `gorm:"index"`
 	CountryCode   string `gorm:"index"`
 	PercentileMin uint
 	PercentileMax uint
 	SKU           string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	CreatedAt     time.Time `gorm:"type:timestamp"`
+	UpdatedAt     time.Time `gorm:"type:timestamp"`
 }
 
 func (SKUConfigModel) TableName() string {

@@ -15,6 +15,7 @@ import (
 type SKUForConfig struct {
 	PackageName string
 	CountryCode string
+	UseCache    bool
 }
 
 type SKUForConfigHandler decorator.QueryHandler[SKUForConfig, string]
@@ -59,7 +60,7 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (sk
 	key := fmt.Sprintf("%s_%s", strings.ToLower(query.CountryCode), strings.ToLower(query.PackageName))
 	randomValue := generateRandomNumber(0, 100)
 
-	if s.cacheModel != nil {
+	if s.cacheModel != nil && query.UseCache {
 		cachedSKU, err := s.cacheModel.SKUForConfig(ctx, key, randomValue)
 
 		if err != nil {

@@ -1,7 +1,7 @@
 package query
 
 type SKUConfig struct {
-	UUID          string
+	ID            string
 	PackageName   string
 	CountryCode   string
 	PercentileMin int

@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"toto-config-api/internal/common/logs"
+	middleware2 "toto-config-api/internal/common/middleware"
 )
 
 func RunHTTPServer(createHandler func(router chi.Router) http.Handler) {
@@ -32,6 +33,7 @@ func RunHTTPServerOnAddr(addr string, createHandler func(router chi.Router) http
 
 func setMiddlewares(router *chi.Mux) {
 	router.Use(render.SetContentType(render.ContentTypeJSON))
+	router.Use(middleware2.UseCache)
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 	router.Use(logs.NewStructuredLogger(logrus.StandardLogger()))
