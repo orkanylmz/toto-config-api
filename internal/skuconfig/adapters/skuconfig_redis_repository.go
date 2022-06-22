@@ -41,12 +41,13 @@ func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, 
 	}
 
 	res, err := r.redisClient.ZRangeByScore(ctx, key, &redis.ZRangeBy{
-		Min:    strconv.Itoa(randomValue),
-		Max:    "+inf",
-		Offset: 0,
-		Count:  1,
+		Min:   strconv.Itoa(randomValue),
+		Max:   "+inf",
+		Count: 1,
 	}).Result()
+
 	fmt.Println("REDIS RES: ", res)
+
 	if err != nil {
 		return "", errors.Wrap(err, "redisRepo.SKUForConfig.redisClient.Get")
 	}

@@ -55,7 +55,7 @@ func generateRandomNumber(min int, max int) int {
 	return min + r.Intn(max-min)
 }
 
-func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (sku string, err error) {
+func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (string, error) {
 
 	key := fmt.Sprintf("%s_%s", strings.ToLower(query.CountryCode), strings.ToLower(query.PackageName))
 	randomValue := generateRandomNumber(0, 100)
@@ -95,7 +95,7 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (sk
 			return cachedSKU, nil
 		}
 
-		sku, err = s.readModel.GetSKUForConfig(ctx, query.PackageName, query.CountryCode, randomValue)
+		sku, err := s.readModel.GetSKUForConfig(ctx, query.PackageName, query.CountryCode, randomValue)
 
 		if err != nil {
 			return "", err
@@ -106,7 +106,7 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (sk
 		}
 		return sku, nil
 	} else {
-		sku, err = s.readModel.GetSKUForConfig(ctx, query.PackageName, query.CountryCode, randomValue)
+		sku, err := s.readModel.GetSKUForConfig(ctx, query.PackageName, query.CountryCode, randomValue)
 
 		if err != nil {
 			return "", err
