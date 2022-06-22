@@ -12,6 +12,18 @@ paths:
     get:
       operationId: getSKU
       parameters:
+        - in: header
+          name: X-Custom-CC
+          description: To add a country code for the request
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: X-Use-Cache
+          description: To enable / disable cache usage
+          schema:
+            type: boolean
+          required: false
         - in: query
           name: package
           schema:
@@ -19,7 +31,7 @@ paths:
           required: true
       responses:
         200:
-          description: todo
+          description: sku response
           content:
             application/json:
               schema:

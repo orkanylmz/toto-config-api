@@ -71,7 +71,6 @@ fi
 echo
 echo "You need to pick a region where Cloud Run is available!"
 echo "See full list of supported regions: https://cloud.google.com/run/docs/locations"
-echo "See available Firebase locations here: https://firebase.google.com/docs/projects/locations"
 echo
 
 echo "Fill all required parameters:"

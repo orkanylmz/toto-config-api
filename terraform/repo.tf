@@ -8,7 +8,7 @@ resource "google_sourcerepo_repository" "toto-config-api" {
 
 resource "google_cloudbuild_trigger" "trigger" {
   trigger_template {
-    branch_name = "master"
+    branch_name = "main"
     repo_name   = google_sourcerepo_repository.toto-config-api.name
   }
 

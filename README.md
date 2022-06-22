@@ -3,6 +3,12 @@
 Toto Config API helps mobile apps to get a randomly distributed subscription sku based
 on some parameters.
 
+# Docs
+Documentation is created using our OpenAPI spec
+
+[Documentation](https://orkanylmz.github.io/config-api-docs/)
+
+
 # Demo
 The demo is deployed in GCP (region `europe-west1`)\
 Endpoint Url: https://skuconfig-http-cfby56oe6q-ew.a.run.app/api/config
@@ -19,13 +25,16 @@ Country Code extraction is disabled with a custom header `X-Custom-CC` for test 
 
 Command To Run Tests
 ```go
-plt --live-ui --duration=45s --rate-limit=50 curl -X GET "https://skuconfig-http-cfby56oe6q-ew.a.run.app/api/config?package=com.x" -H "X-Custom-CC: TR"
+plt --live-ui --duration=120s --rate-limit=50 curl -X GET "https://skuconfig-http-cfby56oe6q-ew.a.run.app/api/config?package=com.x" -H "X-Custom-CC: TR"
 ```
 
-![LatencyGraph](https://www.linkpicture.com/q/Screen-Shot-2022-06-22-at-20.21.42.png)
-![LatencyDistribution](https://www.linkpicture.com/q/Screen-Shot-2022-06-22-at-20.30.48.png)
+![LatencyGraph](https://www.linkpicture.com/q/Screen-Shot-2022-06-22-at-21.40.57.png)
 
-So, the test runs 45s with a 50 request per second, total request count was 2250, and only 1 error happened.
+Latency Distributions
+
+![LatencyDistribution](https://www.linkpicture.com/q/Screen-Shot-2022-06-22-at-21.41.09.png)
+
+So, the test runs 120s with a 50 request per second, total request count was 6001 with 0 errors.
 
 # Design
 This API is designed with DDD (Domain Driven Design) and CleanArch approach to make it robust, well organized, easy and open to develop. It can be used as a micro service without any further development.
