@@ -70,7 +70,13 @@ cache and returns the response. (So further requests can be served directly from
 # Geolocation Extraction
 Since the API deployed in Cloud Run, It handles the Country extraction from a custom API, since Cloud Run does not provide Country Code to us through headers.
 
-# Cloud Architecture
+# Deployment
+### Running Locally
+```go
+docker-compose up
+```
+
+### Cloud Architecture
 - CloudSQL Postgres
 - Cloud Run
 - Cloud Build
@@ -86,10 +92,7 @@ When we commit and push our code to Cloud Source Repository, Cloud Build trigger
 
 ![Architecture](https://i.postimg.cc/JnF1YLCT/toto-arch.png)
 
-### Running Locally
-```go
-docker-compose up
-```
+
 
 ### Google Cloud Deployment (Terraform)
 You can deploy the whole architecture with just a one command to Google Cloud.
