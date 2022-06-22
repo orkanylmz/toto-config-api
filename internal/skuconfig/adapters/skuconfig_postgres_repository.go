@@ -76,26 +76,30 @@ func getConfig() (string, error) {
 
 func NewPostgresConnection(ctx context.Context) (*gorm.DB, error) {
 
+	dbConnString := os.Getenv("DB_CONN_STRING")
+
+	if dbConnString != "" {
+		dbDriver := os.Getenv("DB_DRIVER")
+
+		if dbDriver == "cloudsqlpostgres" {
+			db, err := gorm.Open(postgres.New(postgres.Config{
+				DriverName: "cloudsqlpostgres",
+				DSN: fmt.Sprintf("host=%s user=%s dbname=%s password=%s sslmode=disable",
+					os.Getenv("DB_CONN_STRING"),
+					os.Getenv("POSTGRES_USER"),
+					os.Getenv("POSTGRES_DB"),
+					os.Getenv("POSTGRES_PASSWORD"),
+				),
+			}))
+
+			return db, err
+		}
+	}
+
 	conf, err := getConfig()
 
 	if err != nil {
 		return nil, err
-	}
-
-	dbDriver := os.Getenv("DB_DRIVER")
-
-	if dbDriver == "cloudsqlpostgres" {
-		db, err := gorm.Open(postgres.New(postgres.Config{
-			DriverName: "cloudsqlpostgres",
-			DSN: fmt.Sprintf("host=%s user=%s dbname=%s password=%s sslmode=disable",
-				os.Getenv("DB_CONN_STRING"),
-				os.Getenv("POSTGRES_USER"),
-				os.Getenv("POSTGRES_DB"),
-				os.Getenv("POSTGRES_PASSWORD"),
-			),
-		}))
-
-		return db, err
 	}
 
 	db, err := gorm.Open(postgres.Open(conf), &gorm.Config{})

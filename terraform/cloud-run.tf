@@ -26,6 +26,10 @@ module cloud_run_config_api_http {
     {
       name = "POSTGRES_PASSWORD"
       value = var.db_user_password
+    },
+    {
+      name = "DB_DRIVER"
+      value = "cloudsqlpostgres"
     }
   ]
 
