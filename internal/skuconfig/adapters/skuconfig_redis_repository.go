@@ -73,7 +73,7 @@ func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, 
 
 	if len(res) == 0 {
 		// Check For Default Conf.
-		res, err := r.redisClient.ZRangeByScore(ctx, key, &redis.ZRangeBy{
+		res, err := r.redisClient.ZRangeByScore(ctx, defaultKey, &redis.ZRangeBy{
 			Min:   strconv.Itoa(randomValue),
 			Max:   "+inf",
 			Count: 1,
