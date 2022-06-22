@@ -22,7 +22,7 @@ type SKUForConfigHandler decorator.QueryHandler[SKUForConfig, string]
 type SKUForConfigReadModel interface {
 	GetAllSKUsForConfig(ctx context.Context, packageName string, countryCode string) ([]*skuconfig.SKUConfig, error)
 	GetSKUForConfig(ctx context.Context, packageName string, countryCode string, randomValue int) (string, error)
-	GetDefaultSKUConfigForPackage(ctx context.Context, packageName string) (*skuconfig.SKUConfig, error)
+	GetDefaultSKUConfigForPackage(ctx context.Context, packageName string) ([]*skuconfig.SKUConfig, error)
 }
 
 type SKUForConfigCacheModel interface {
@@ -57,7 +57,7 @@ func generateRandomNumber(min int, max int) int {
 	return min + r.Intn(max-min)
 }
 
-func (s skuForConfigHandler) getCacheKey(pkg string, cc string) string {
+func (s skuForConfigHandler) getCacheKey(cc string, pkg string, ) string {
 	return fmt.Sprintf("%s_%s", strings.ToLower(cc), strings.ToLower(pkg))
 }
 
@@ -95,12 +95,16 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (st
 				return "", nil
 			}
 
-			if len(allConfigurationsForPkgAndCountry) == 0 {
+			defaultConfigurationsForPkg, err := s.readModel.GetAllSKUsForConfig(ctx, query.PackageName, "ZZ")
+
+			if len(allConfigurationsForPkgAndCountry) == 0 && len(defaultConfigurationsForPkg) == 0 {
 				return "", nil
 			}
-
-			// Sync All Configurations to DB
+			
+			// Sync All Configurations to Cache
 			err = s.cacheModel.SyncConfigurations(ctx, cacheKey, allConfigurationsForPkgAndCountry)
+			// Sync Default Configurations to Cache
+			err = s.cacheModel.SyncConfigurations(ctx, defaultKey, defaultConfigurationsForPkg)
 
 			if err == nil {
 				// If not fail to sync
