@@ -66,14 +66,17 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (st
 		cachedSKU, err := s.cacheModel.SKUForConfig(ctx, key, randomValue)
 
 		if err != nil {
+			fmt.Println("Lookup for cache error: ", err)
 			syncCacheIfNotFound = false
 		}
 
 		if cachedSKU != "" {
+			fmt.Println("Returning From Cache: ", cachedSKU)
 			return cachedSKU, nil
 		}
 
 		if syncCacheIfNotFound {
+			fmt.Println("Syncing cache from DB")
 			allConfigurationsForPkgAndCountry, err := s.readModel.GetAllSKUsForConfig(ctx, query.PackageName, query.CountryCode)
 			if err != nil {
 				return "", nil
@@ -85,10 +88,12 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (st
 			return s.cacheModel.SKUForConfig(ctx, key, randomValue)
 		}
 
+		fmt.Println("Returning directly from cache since cache reading error")
 		// Find and return from not syncing
 		return s.findSKUFromDB(ctx, query.PackageName, query.CountryCode, randomValue)
 
 	} else {
+		fmt.Println("Returning directly from cache, no-opt in cache")
 		return s.findSKUFromDB(ctx, query.PackageName, query.CountryCode, randomValue)
 	}
 
