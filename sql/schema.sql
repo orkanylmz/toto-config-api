@@ -1,8 +1,8 @@
 create table sku_configs
 (
-    uuid           varchar(255)               not null
-        constraint sku_configs_pk
-            primary key,
+    id           varchar(255)               not null
+                 constraint sku_configs_pk
+                 primary key,
     package        varchar(155)       not null,
     country_code   varchar(3)         not null,
     percentile_min smallint CHECK ( percentile_min between 0 and 100) default 0 not null,
@@ -16,8 +16,8 @@ create index sku_configs_country_code_index
 create index sku_configs_percentile_min_percentile_max_index
     on sku_configs (percentile_min, percentile_max);
 
-create unique index sku_configs_uuid_uindex
-    on sku_configs (uuid);
+create unique index sku_configs_id_uindex
+    on sku_configs (id);
 
 --
 -- INSERT INTO public.sku_configs (uuid, package, country_code, percentile_min, percentile_max, sku)
