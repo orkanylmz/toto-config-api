@@ -2,7 +2,6 @@ package query
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"math/rand"
@@ -61,59 +60,46 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (st
 	randomValue := generateRandomNumber(0, 100)
 
 	if s.cacheModel != nil && query.UseCache {
-		fmt.Println("USING CACHE")
+
+		syncCacheIfNotFound := true
+
 		cachedSKU, err := s.cacheModel.SKUForConfig(ctx, key, randomValue)
-		fmt.Println("CACHED SKU: ", cachedSKU)
+
 		if err != nil {
-			fmt.Println("SKUForConfig Err: ", err)
+			syncCacheIfNotFound = false
+		}
 
-			if errors.Is(err, skuconfig.KeyNotFoundError) {
-				fmt.Println("SKUForConfig Err: ", "NOT FOUND")
-				return "", err
-			}
+		if cachedSKU != "" {
+			return cachedSKU, nil
+		}
 
-			// Key not found in cache, maybe in db?. Check for package name and country
-			// And set a cache from the configurations
-			fmt.Println("GetAllSKUsForConfig: ", "GETTING")
+		if syncCacheIfNotFound {
 			allConfigurationsForPkgAndCountry, err := s.readModel.GetAllSKUsForConfig(ctx, query.PackageName, query.CountryCode)
 			if err != nil {
-				fmt.Println("Can't get all configuration to sync db to cache")
+				return "", nil
 			}
 
-			if len(allConfigurationsForPkgAndCountry) == 0 {
-				return "", errors.New("not found")
-			}
-
-			fmt.Println("SyncConfigurations")
 			_ = s.cacheModel.SyncConfigurations(ctx, key, allConfigurationsForPkgAndCountry)
 
 			// Simply retrieve the cached value and return
 			return s.cacheModel.SKUForConfig(ctx, key, randomValue)
 		}
 
-		// If we find in cache, return
-		if cachedSKU != "" {
-			return cachedSKU, nil
-		}
+		// Find and return from not syncing
+		return s.findSKUFromDB(ctx, query.PackageName, query.CountryCode, randomValue)
 
-		sku, err := s.readModel.GetSKUForConfig(ctx, query.PackageName, query.CountryCode, randomValue)
-
-		if err != nil {
-			return "", err
-		}
-
-		if err = s.cacheModel.SetSKU(ctx, key, sku); err != nil {
-			return "", err
-		}
-		return sku, nil
 	} else {
-		sku, err := s.readModel.GetSKUForConfig(ctx, query.PackageName, query.CountryCode, randomValue)
-
-		if err != nil {
-			return "", err
-		}
-
-		return sku, nil
+		return s.findSKUFromDB(ctx, query.PackageName, query.CountryCode, randomValue)
 	}
 
+}
+
+func (s skuForConfigHandler) findSKUFromDB(ctx context.Context, pkg string, cc string, val int) (string, error) {
+	sku, err := s.readModel.GetSKUForConfig(ctx, pkg, cc, val)
+
+	if err != nil {
+		return "", err
+	}
+
+	return sku, nil
 }

@@ -35,10 +35,9 @@ func (r RedisSKUConfigRepository) SyncConfigurations(ctx context.Context, key st
 
 func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, randomValue int) (string, error) {
 	isKeyExists, err := r.redisClient.Exists(ctx, key).Result()
-	fmt.Println("isKeyExists: ", isKeyExists)
+
 	if err != nil {
-		fmt.Println("r.redisClient.Exists(ctx, key).Result() Err: ", err)
-		return "", err
+		return "", errors.Wrap(err, "redisClient.Exists")
 	}
 
 	if isKeyExists == 0 {
@@ -50,8 +49,6 @@ func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, 
 		Max:   "+inf",
 		Count: 1,
 	}).Result()
-
-	fmt.Println("REDIS RES: ", res)
 
 	if err != nil {
 		return "", errors.Wrap(err, "redisRepo.SKUForConfig.redisClient.Get")
