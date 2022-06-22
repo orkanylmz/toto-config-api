@@ -6,7 +6,7 @@ module cloud_run_config_api_http {
   location   = var.region
   dependency = null_resource.init_docker_images
 
-  name     = "config-api"
+  name     = "skuconfig"
   protocol = "http"
   auth     = false
 
