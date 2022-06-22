@@ -20,16 +20,16 @@ func NewHttpServer(app app.Application) HttpServer {
 }
 
 func (h HttpServer) GetSKU(w http.ResponseWriter, r *http.Request, params GetSKUParams) {
-	fmt.Println("REAL IP: ", r.RemoteAddr)
+
 	countryCode := "ZZ"
 
 	if r.RemoteAddr != "" {
 		countryCode = GetCountryCodeFromIP(r.RemoteAddr)
 	}
 
-	useCache := r.Context().Value(middleware.UseCacheKey)
+	fmt.Println("Country Code: ", countryCode)
 
-	fmt.Printf("%T", useCache)
+	useCache := r.Context().Value(middleware.UseCacheKey)
 
 	sku, err := h.app.Queries.SKUForConfig.Handle(r.Context(), query.SKUForConfig{
 		PackageName: params.Package,
