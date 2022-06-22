@@ -1,13 +1,37 @@
 # Toto Config API
 
-Toto Config API helps mobile apps to get a randomly distributed subscription skus based
+Toto Config API helps mobile apps to get a randomly distributed subscription sku based
 on some parameters.
 
+# Demo
+The demo is deployed in GCP (region `europe-west1`)\
+Endpoint Url: https://skuconfig-http-cfby56oe6q-ew.a.run.app/api/config
+
+The current architecture is deployed using the `smallest` machine configurations available in GCP for Redis, PostgreSQL and Cloud Run
+
+Also, `authentication` is not implemented for simplicity.
+
+## Benchmark Results
+I have run a load test using https://github.com/vearutop/plt
+
+Country Code extraction is disabled with a custom header `X-Custom-CC` for test purposes, because the 3rd party geo API is limiting.
+(We can replace it with ours after.)\
+
+Command To Run Tests
+```go
+plt --live-ui --duration=45s --rate-limit=50 curl -X GET "https://skuconfig-http-cfby56oe6q-ew.a.run.app/api/config?package=com.x" -H "X-Custom-CC: TR"
+```
+
+![LatencyGraph](https://www.linkpicture.com/q/Screen-Shot-2022-06-22-at-20.21.42.png)
+![LatencyDistribution](https://www.linkpicture.com/q/Screen-Shot-2022-06-22-at-20.30.48.png)
+
+So, the test runs 45s with a 50 request per second, total request count was 2250, and only 1 error happened.
+
 # Design
-This API is designed with DDD (Domain Driven Design) and CleanArch approach to make it robust, well organized, easy and open to develop. It can be used as a micro service without any further development. 
-Main idea in the design as following;
+This API is designed with DDD (Domain Driven Design) and CleanArch approach to make it robust, well organized, easy and open to develop. It can be used as a micro service without any further development.
 It's free of any third party technologies, and any solution that fits our need can be integrated with ease.
 
+![CleanArch](https://miro.medium.com/max/772/1*B7LkQDyDqLN3rRSrNYkETA.jpeg)
 # Caching
 In order to serve our API low latency, system will use a caching mechanism. Currently supported integration is Redis.
 
