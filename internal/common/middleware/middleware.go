@@ -5,10 +5,10 @@ import (
 	"net/http"
 )
 
-// Key to use when setting the request ID.
+// Key to use when setting the cache information.
 type ctxKeyUseCacheID int
 
-// RequestIDKey is the key that holds the unique request ID in a request context.
+// UseCacheKey is the key that holds the cache information
 const UseCacheKey ctxKeyUseCacheID = 0
 
 var UseCacheHeader = "X-Use-Cache"
