@@ -78,7 +78,9 @@ Since the API deployed in Cloud Run, It handles the Country extraction from a cu
 - Memorystore (Redis)
 - Docker
 
-Our CloudSQL will not be publicly exposed, our Cloud Run instance connects to it using `cloudsqlproxy`
+Our CloudSQL and MemoryStore will not be publicly exposed so,
+Cloud Run instance connects to SQL by using `cloudsqlproxy` and to MemoryStore with custom `vpc` configuration
+
 
 When we commit and push our code to Cloud Source Repository, Cloud Build triggers and start building our docker image using `cloudbuild.yaml`, after success build, it will deploy it to Cloud Run.
 
