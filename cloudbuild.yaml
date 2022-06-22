@@ -1,24 +1,26 @@
 steps:
-  - id: common-lint
-    name: golang
-    entrypoint: ./scripts/lint.sh
-    args: ['common', '-install']
-  - id: skuconfig-lint
-    name: golang
-    entrypoint: ./scripts/lint.sh
-    args: ['skuconfig', '-install']
-  - id: skuconfig-docker
-    name: gcr.io/cloud-builders/docker
-    entrypoint: ./scripts/build-docker.sh
-    args: ["skuconfig", "$PROJECT_ID"]
-    waitFor: [skuconfig-lint]
-  - id: skuconfig-http-deploy
-    name: gcr.io/cloud-builders/gcloud
-    entrypoint: ./scripts/deploy.sh
-    args: [skuconfig, http, "$PROJECT_ID"]
-  options:
-    env:
-    - 'GO111MODULE=on'
-    machineType: 'N1_HIGHCPU_8'
-  images:
-    - 'gcr.io/$PROJECT_ID/skuconfig'
+- id: common-lint
+  name: golang
+  entrypoint: ./scripts/lint.sh
+  args: ['common', '-install']
+- id: skuconfig-lint
+  name: golang
+  entrypoint: ./scripts/lint.sh
+  args: ['skuconfig', '-install']
+- id: skuconfig-docker
+  name: gcr.io/cloud-builders/docker
+  entrypoint: ./scripts/build-docker.sh
+  args: ["skuconfig", "$PROJECT_ID"]
+  waitFor: [skuconfig-lint]
+- id: skuconfig-http-deploy
+  name: gcr.io/cloud-builders/gcloud
+  entrypoint: ./scripts/deploy.sh
+  args: [skuconfig, http, "$PROJECT_ID"]
+
+options:
+  env:
+  - 'GO111MODULE=on'
+  machineType: 'N1_HIGHCPU_8'
+
+images:
+  - 'gcr.io/$PROJECT_ID/skuconfig'
