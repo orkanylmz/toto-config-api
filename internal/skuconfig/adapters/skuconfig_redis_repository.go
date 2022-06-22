@@ -14,6 +14,18 @@ type RedisSKUConfigRepository struct {
 	redisClient *redis.Client
 }
 
+func (r RedisSKUConfigRepository) SyncConfiguration(ctx context.Context, key string, configuration *skuconfig.SKUConfig) error {
+	err := r.redisClient.ZAdd(ctx, key, &redis.Z{
+		Score:  100,
+		Member: configuration.SKU(),
+	}).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r RedisSKUConfigRepository) SyncConfigurations(ctx context.Context, key string, configurations []*skuconfig.SKUConfig) error {
 
 	sortedSetValues := make([]*redis.Z, 0)
@@ -33,16 +45,21 @@ func (r RedisSKUConfigRepository) SyncConfigurations(ctx context.Context, key st
 	return nil
 }
 
-func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, randomValue int) (string, error) {
+func (r RedisSKUConfigRepository) IsCacheKeyExists(ctx context.Context, key string) (bool, error) {
 	isKeyExists, err := r.redisClient.Exists(ctx, key).Result()
 
 	if err != nil {
-		return "", errors.Wrap(err, "redisClient.Exists")
+		return false, errors.Wrap(err, "redisClient.Exists")
 	}
 
 	if isKeyExists == 0 {
-		return "", skuconfig.KeyNotFoundError
+		return false, skuconfig.KeyNotFoundError
 	}
+
+	return true, nil
+}
+
+func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, defaultKey string, randomValue int) (string, error) {
 
 	res, err := r.redisClient.ZRangeByScore(ctx, key, &redis.ZRangeBy{
 		Min:   strconv.Itoa(randomValue),
@@ -55,7 +72,22 @@ func (r RedisSKUConfigRepository) SKUForConfig(ctx context.Context, key string, 
 	}
 
 	if len(res) == 0 {
-		return "", nil
+		// Check For Default Conf.
+		res, err := r.redisClient.ZRangeByScore(ctx, key, &redis.ZRangeBy{
+			Min:   strconv.Itoa(randomValue),
+			Max:   "+inf",
+			Count: 1,
+		}).Result()
+
+		if err != nil {
+			return "", errors.Wrap(err, "redisRepo.SKUForConfig.redisClient.Get")
+		}
+
+		if len(res) == 0 {
+			return "", nil
+		}
+
+		return res[0], nil
 	}
 
 	return res[0], nil
@@ -73,7 +105,7 @@ func NewRedisSKUConfigRepository(redisClient *redis.Client) *RedisSKUConfigRepos
 func NewRedisClient(ctx context.Context) (*redis.Client, error) {
 	poolSize, err := strconv.Atoi(os.Getenv("REDIS_POOL_SIZE"))
 	if err != nil {
-		poolSize = 100 // default pool
+		poolSize = 100
 	}
 
 	opts := redis.Options{

@@ -16,11 +16,32 @@ type PostgresSKUConfigRepository struct {
 	db *gorm.DB
 }
 
+func (p PostgresSKUConfigRepository) GetDefaultSKUConfigForPackage(ctx context.Context, packageName string) (*skuconfig.SKUConfig, error) {
+	var foundConf *SKUConfigModel
+	query := "package = ? AND country_code = ZZ"
+	err := p.db.Debug().WithContext(ctx).Where(query, packageName).Last(&foundConf).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// Can't find a record with country code, so lets find with a default country code (ZZ)
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	newSkuConfig, err := skuconfig.UnmarshalSKUConfigFromDatabase(foundConf.ID, foundConf.Package, foundConf.CountryCode, foundConf.PercentileMin, foundConf.PercentileMax, foundConf.SKU)
+	if err != nil {
+		fmt.Println("error while converting db object to domain entity")
+	}
+	return newSkuConfig, nil
+}
+
 func (p PostgresSKUConfigRepository) GetAllSKUsForConfig(ctx context.Context, packageName string, countryCode string) ([]*skuconfig.SKUConfig, error) {
 
 	var foundSKUs []SKUConfigModel
 
-	err := p.db.WithContext(ctx).Where("package = ? AND country_code = ?", packageName, countryCode).Find(&foundSKUs).Error
+	err := p.db.WithContext(ctx).Where("package = ? AND (country_code = ? OR country_code = ZZ)", packageName, countryCode).Find(&foundSKUs).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
