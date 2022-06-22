@@ -108,7 +108,13 @@ func (s skuForConfigHandler) Handle(ctx context.Context, query SKUForConfig) (st
 			if err == nil {
 				// If not fail to sync
 				// Simply retrieve the cached value and return
-				return s.cacheModel.SKUForConfig(ctx, cacheKey, defaultKey, randomValue)
+				if len(allConfigurationsForPkgAndCountry) > 0 {
+					return s.cacheModel.SKUForConfig(ctx, cacheKey, defaultKey, randomValue)
+				}
+
+				if len(defaultConfigurationsForPkg) > 0 {
+					return s.cacheModel.SKUForConfig(ctx, defaultKey, defaultKey, randomValue)
+				}
 			}
 
 			// If we fail to sync the cache, flow will continue by reading DB
