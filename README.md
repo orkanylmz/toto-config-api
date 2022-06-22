@@ -10,12 +10,31 @@ Documentation is created using our OpenAPI spec
 
 
 # Demo
+
+Check [Documentation](https://orkanylmz.github.io/config-api-docs/) first
+
 The demo is deployed in GCP (region `europe-west1`)\
 Endpoint Url: https://skuconfig-http-cfby56oe6q-ew.a.run.app/api/config
 
-The current architecture is deployed using the `smallest` machine configurations available in GCP for Redis, PostgreSQL and Cloud Run
+The current architecture is deployed using the `smallest machine configurations` available in GCP for Redis, PostgreSQL and Cloud Run
 
 Also, `authentication` is not implemented for simplicity.
+
+Current Configurations
+
+![CurrentConfigurations](https://www.linkpicture.com/q/Screen-Shot-2022-06-23-at-00.59.52.png)
+
+You can Test with following packages
+ - com.x
+ - com.y
+ - com.z
+
+Following Countries:
+ - TR
+ - US
+ - IL
+
+If the country can't be matched the default configuration (country code = ZZ) will be returned.
 
 ## Benchmark Results
 I have run a load test using https://github.com/vearutop/plt
